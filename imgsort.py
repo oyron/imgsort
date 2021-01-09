@@ -1,6 +1,7 @@
 from pathlib import Path
 from PIL import Image
 from datetime import datetime
+from tqdm import tqdm
 
 import exiftool, sys, re
 
@@ -13,18 +14,20 @@ def get_date(f):
     tag = tag_names[f.suffix.lower()] if f.suffix.lower() in tag_names else tag_names['*']
     with exiftool.ExifTool() as et:
         metadata = et.get_metadata(str(f.absolute()))
+        if not tag in metadata:
+            return None
         date_str = metadata[tag]
         return parse_exif_date(date_str)
 
 def get_target_name(f):
     date = get_date(f)
     if not date:
-        print("Could not extract date from " + f.name)
+        #print("Could not extract date from " + f.name)
         return None
     return "{}-{:02}-{:02}".format(date.year, date.month, date.day)
     
 def move_file(f, target):
-    print("Moving {} to {}".format(f.name, target.name))
+    #print("Moving {} to {}".format(f.name, target.name))
     if not target.exists():
         target.mkdir()
     new_f = target.joinpath(f.name)
@@ -33,20 +36,33 @@ def move_file(f, target):
 def run(base_path = "."):
     extensions = [".jpg", ".heic", ".mov"]
     basepath = Path(base_path)
-    files = basepath.iterdir()
-    for f in files:
-        print("Processing " + f.name)
+    files = list(basepath.iterdir())
+    dirs = []
+    unsupported = []
+    no_metadata = []
+    count = 0
+    for f in tqdm(files, file=sys.stdout, desc="Processing files"):
         if not f.is_file():
-            print("Ignoring directory " + f.name)
+            dirs.append(f.name)
             continue
         if not f.suffix.lower() in extensions:
-            print("Unsupported file type: " + f.name)
+            unsupported.append(f.name)
             continue
         
         dir_name = get_target_name(f)
-        if dir_name:
+        if not dir_name:
+            no_metadata.append(f.name)
+        else:
             target = basepath.joinpath(dir_name)
             move_file(f, target)
+            count += 1
+    print("Successfully processed {} files".format(count))
+    if len(dirs) > 0:
+        print("Directories ignored: {}".format(dirs))
+    if len(unsupported) > 0:
+        print("Unsupported file types ignored: {}".format(unsupported))
+    if len(no_metadata) > 0:
+        print("Could not extract metadata from: {}".format(no_metadata))
         
             
 if __name__ == "__main__":
