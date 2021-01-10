@@ -46,7 +46,7 @@ def run(base_path = "."):
             dirs.append(f.name)
             continue
         if not f.suffix.lower() in extensions:
-            unsupported.append(f.name)
+            unsupported.append(f.suffix)
             continue
         
         dir_name = get_target_name(f)
@@ -58,11 +58,11 @@ def run(base_path = "."):
             count += 1
     print("Successfully processed {} files".format(count))
     if len(dirs) > 0:
-        print("Directories ignored: {}".format(dirs))
+        print("{} directories ignored".format(len(dirs)))
     if len(unsupported) > 0:
-        print("Unsupported file types ignored: {}".format(unsupported))
+        print("{} files of unsupported file type ignored: {}".format(len(unsupported), set(unsupported)))
     if len(no_metadata) > 0:
-        print("Could not extract metadata from: {}".format(no_metadata))
+        print("Could not extract metadata from {} files".format(len(no_metadata)))
         
             
 if __name__ == "__main__":
