@@ -1,0 +1,5 @@
+if [ "$#" -ne 1 ]; then
+    echo "Usage: imgsort <src dir>"
+else 
+    ~/src/imgsort/venv/bin/python3 ~/src/imgsort/venv/bin/imgsort.py $1 "/Users/oyron/Library/Mobile Documents/com~apple~CloudDocs/MediaLib/Photo"
+fi

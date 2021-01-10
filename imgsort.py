@@ -1,13 +1,14 @@
+import exiftool, sys, re
 from pathlib import Path
 from PIL import Image
 from datetime import datetime
 from tqdm import tqdm
 
-import exiftool, sys, re
 
 def parse_exif_date(date_str):
-    match = re.search("(\d+):(\d+):(\d+) (\d+):(\d+):(\d+)", date_str)
+    match = re.search(r"(\d+):(\d+):(\d+) (\d+):(\d+):(\d+)", date_str)
     return datetime(int(match.group(1)), int(match.group(2)), int(match.group(3)), int(match.group(4)), int(match.group(5)), int(match.group(6)))
+
 
 def get_date(f):
     tag_names = {'*': 'EXIF:DateTimeOriginal', '.mov': 'QuickTime:CreateDate'}
@@ -18,6 +19,7 @@ def get_date(f):
             return None
         date_str = metadata[tag]
         return parse_exif_date(date_str)
+
 
 def init_target_dir(f, date, base_path):
     year_path = base_path.joinpath(str(date.year))
@@ -31,14 +33,15 @@ def init_target_dir(f, date, base_path):
         day_path.mkdir()
     return day_path
     
+
 def move_file(f, target):
-    #print("Moving {} to {}".format(f.name, target.name))
     if not target.exists():
         target.mkdir()
     new_f = target.joinpath(f.name)
     f.rename(new_f)
 
-def run(src_dir, target_dir):
+
+def run(src_dir=".", target_dir="."):
     extensions = [".jpg", ".heic", ".mov"]
     files = list(Path(src_dir).iterdir())
     dirs = []
@@ -70,7 +73,5 @@ def run(src_dir, target_dir):
         
             
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: imgsort <src dir> <target dir>")
-    else:
+    if len(sys.argv) == 3:
         run(sys.argv[1], sys.argv[2])
