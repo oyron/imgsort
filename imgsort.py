@@ -19,12 +19,17 @@ def get_date(f):
         date_str = metadata[tag]
         return parse_exif_date(date_str)
 
-def get_target_name(f):
-    date = get_date(f)
-    if not date:
-        #print("Could not extract date from " + f.name)
-        return None
-    return "{}-{:02}-{:02}".format(date.year, date.month, date.day)
+def init_target_dir(f, date, base_path):
+    year_path = base_path.joinpath(str(date.year))
+    if not year_path.exists():
+        year_path.mkdir()
+    month_path = year_path.joinpath("{:02}".format(date.month))
+    if not month_path.exists():
+        month_path.mkdir()
+    day_path = month_path.joinpath("{:02}".format(date.day))
+    if not day_path.exists():
+        day_path.mkdir()
+    return day_path
     
 def move_file(f, target):
     #print("Moving {} to {}".format(f.name, target.name))
@@ -33,10 +38,9 @@ def move_file(f, target):
     new_f = target.joinpath(f.name)
     f.rename(new_f)
 
-def run(base_path = "."):
+def run(src_dir, target_dir):
     extensions = [".jpg", ".heic", ".mov"]
-    basepath = Path(base_path)
-    files = list(basepath.iterdir())
+    files = list(Path(src_dir).iterdir())
     dirs = []
     unsupported = []
     no_metadata = []
@@ -49,11 +53,11 @@ def run(base_path = "."):
             unsupported.append(f.suffix)
             continue
         
-        dir_name = get_target_name(f)
-        if not dir_name:
+        created_date = get_date(f)
+        if not created_date:
             no_metadata.append(f.name)
         else:
-            target = basepath.joinpath(dir_name)
+            target = init_target_dir(f, created_date, Path(target_dir))
             move_file(f, target)
             count += 1
     print("Successfully processed {} files".format(count))
@@ -66,7 +70,7 @@ def run(base_path = "."):
         
             
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        run(sys.argv[1])
+    if len(sys.argv) != 3:
+        print("Usage: imgsort <src dir> <target dir>")
     else:
-        run()
+        run(sys.argv[1], sys.argv[2])

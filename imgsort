@@ -1,1 +1,1 @@
-~/src/imgsort/venv/bin/python3 ~/src/imgsort/venv/bin/imgsort.py $1
+~/src/imgsort/venv/bin/python3 ~/src/imgsort/venv/bin/imgsort.py $1 $2
