@@ -1,2 +1,4 @@
 venv
 testdata
+.vscode
+.DS_Store

@@ -1,24 +1,19 @@
-import exiftool, sys, re
+import sys, subprocess
 from pathlib import Path
-from PIL import Image
 from datetime import datetime
 from tqdm import tqdm
 
 
-def parse_exif_date(date_str):
-    match = re.search(r"(\d+):(\d+):(\d+) (\d+):(\d+):(\d+)", date_str)
-    return datetime(int(match.group(1)), int(match.group(2)), int(match.group(3)), int(match.group(4)), int(match.group(5)), int(match.group(6)))
-
-
-def get_date(f):
-    tag_names = {'*': 'EXIF:DateTimeOriginal', '.mov': 'QuickTime:CreateDate'}
-    tag = tag_names[f.suffix.lower()] if f.suffix.lower() in tag_names else tag_names['*']
-    with exiftool.ExifTool() as et:
-        metadata = et.get_metadata(str(f.absolute()))
-        if not tag in metadata:
-            return None
-        date_str = metadata[tag]
-        return parse_exif_date(date_str)
+def get_date(filepath):
+    #Gets the date taken for a photo through a shell
+    cmd = "mdls '%s'" % filepath
+    output = subprocess.check_output(cmd, shell = True)
+    lines = output.decode("ascii").split("\n")
+    for l in lines:
+        if "kMDItemContentCreationDate" in l:
+            datetime_str = l.split("= ")[1]
+            return datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S +0000")
+    return None
 
 
 def init_target_dir(f, date, base_path):

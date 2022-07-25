@@ -1,5 +1,7 @@
-if [ "$#" -ne 1 ]; then
-    echo "Usage: imgsort <src dir>"
+if [ "$#" -eq 1 ]; then
+    ~/src/imgsort/venv/bin/python3 ~/src/imgsort/imgsort.py $1 "/Users/oyron/Library/Mobile Documents/com~apple~CloudDocs/MediaLib/Photo"
+elif [ "$#" -eq 2 ]; then
+    ~/src/imgsort/venv/bin/python3 ~/src/imgsort/imgsort.py $1 $2
 else 
-    ~/src/imgsort/venv/bin/python3 ~/src/imgsort/venv/bin/imgsort.py $1 "/Users/oyron/Library/Mobile Documents/com~apple~CloudDocs/MediaLib/Photo"
+    echo "Usage: imgsort <src dir> [<target dir>]"
 fi
