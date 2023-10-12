@@ -8,7 +8,7 @@ def get_date(filepath):
     #Gets the date taken for a photo through a shell
     cmd = "mdls '%s'" % filepath
     output = subprocess.check_output(cmd, shell = True)
-    lines = output.decode("ascii").split("\n")
+    lines = output.decode("utf-8").split("\n")
     for l in lines:
         if "kMDItemContentCreationDate" in l:
             datetime_str = l.split("= ")[1]
