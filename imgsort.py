@@ -37,7 +37,7 @@ def move_file(f, target):
 
 
 def run(src_dir=".", target_dir="."):
-    extensions = [".jpg", ".jpeg", ".heic", ".mov"]
+    extensions = [".jpg", ".jpeg", ".heic", ".mov", ".mp4"]
     files = list(Path(src_dir).iterdir())
     dirs = []
     unsupported = []
